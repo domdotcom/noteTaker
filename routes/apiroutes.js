@@ -1,50 +1,47 @@
 var fs = require("fs");
-var path = require("path");
-var uuid = require("uuid");
-var dbPath = path.join(__dirname, "../db/db.json");
-
-module.exports = function (app) {
-  app.get("/api/notes", function (req, res) {
-    fs.readFile(dbPath, "utf8", function (err, data) {
-      if (err) {
-        throw err;
-      }
-      return res.json(data);
+module.exports = function(app) {
+    app.get("/api/notes", function(req, res) {
+      res.json(getAllNotes());
     });
-  });
 
-  app.post("/api/notes", function (req, res) {
-    fs.readFile(dbPath, "utf8", function (err1, data1) {
-      if (err1) {
-        throw err1;
-      }
-      console.log(typeof data1);
-      let dataArr = JSON.parse(data1);
-      let entry = req.body;
-      entry.id = uuid.v4();
-      dataArr.push(entry);
-      fs.writeFile(dbPath, JSON.stringify(dataArr, null, 2), function (err2) {
-        if (err2) {
-          throw err2;
+    app.post("/api/notes", function(req, res) {
+      let data = req.body;
+      data = appendNewNote(data);
+      res.json(data);
+    });
+
+    app.delete("/api/notes/:id", function(req, res) {
+      let id = req.params.id;
+      deleteNote(id);
+      res.end();
+    });
+
+    function getAllNotes(){
+      return JSON.parse(fs.readFileSync("./db/db.json", "utf8"));
+    }
+  
+    function appendNewNote(note) {
+      let notes = getAllNotes();
+      let d = new Date();
+      note["id"] = d.getTime();
+      notes.push(note);
+      overwriteNotes(notes);
+      return note;
+    }
+  
+    function deleteNote(id){
+      id = parseInt(id);
+      let notes = getAllNotes();
+      for(let i = 0; i < notes.length; i++){
+        if(notes[i].id == id){
+          notes.splice(i, 1);
+          overwriteNotes(notes);
+          break;
         }
-        return res.json(dataArr);
-      });
-    });
-  });
-
-  app.delete("/api/notes/:id", function (req, res) {
-    fs.readFile(dbPath, "utf8", function (err, data2) {
-      if (err) throw err;
-      let noteObj = JSON.parse(data2);
-      let noteObjRemain = noteObj.filter((obj) => obj.id !== req.params.id);
-
-      fs.writeFile(dbPath, JSON.stringify(noteObjRemain, null, 2), function (
-        err,
-        data
-      ) {
-        if (err) throw err;
-        return res.json(noteObj);
-      });
-    });
-  });
-};
+      }
+    }
+  
+    function overwriteNotes(newNotes){
+      fs.writeFileSync("./db/db.json", JSON.stringify(newNotes));
+    }
+  };

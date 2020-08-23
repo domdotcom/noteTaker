@@ -24,7 +24,6 @@ module.exports = function (app) {
       entry.id = uuid.v4();
       dataArr.push(entry);
       fs.writeFile(dbPath, JSON.stringify(dataArr, null, 2), function (err2) {
-        console.log("done writing");
         if (err2) {
           throw err2;
         }
@@ -44,7 +43,6 @@ module.exports = function (app) {
         data
       ) {
         if (err) throw err;
-        console.log("file saved with obj removed");
         return res.json(noteObj);
       });
     });

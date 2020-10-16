@@ -1,6 +1,6 @@
 ## Express Note Taker
 
-Here is the [link](https://ancient-crag-06170.herokuapp.com/) to the deployed app.
+Here is the [link](https://git.heroku.com/fathomless-dusk-93940.git/) to the deployed app.
 
 ## Description
 
